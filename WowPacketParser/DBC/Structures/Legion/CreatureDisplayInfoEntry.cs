@@ -2,7 +2,7 @@
 
 namespace WowPacketParser.DBC.Structures
 {
-    [DBFile("CreatureDisplayInfo")]
+    //[DBFile("CreatureDisplayInfo")]
     public sealed class CreatureDisplayInfoEntry
     {
         public uint ID;

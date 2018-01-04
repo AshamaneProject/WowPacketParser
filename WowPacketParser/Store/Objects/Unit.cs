@@ -141,7 +141,7 @@ namespace WowPacketParser.Store.Objects
                     creatureTemplateScaling.Entry                   = UpdateFields.GetValue<ObjectField, uint>(ObjectField.OBJECT_FIELD_ENTRY);
                     creatureTemplateScaling.LevelScalingMin         = ScalingMinLevel;
                     creatureTemplateScaling.LevelScalingMax         = ScalingMaxLevel;
-                    creatureTemplateScaling.LevelScalingDelta       = UpdateFields.GetValue<UnitField, int>(UnitField.UNIT_FIELD_SCALING_LEVEL_DELTA);
+                    creatureTemplateScaling.LevelScalingDelta       = UpdateFields.GetValue<UnitField, int?>(UnitField.UNIT_FIELD_SCALING_LEVEL_DELTA) ?? 0;
                     Storage.CreatureTemplateScalings.Add(creatureTemplateScaling);
                 }
 
@@ -206,10 +206,13 @@ namespace WowPacketParser.Store.Objects
         public static TK GetValue<T, TK>(this Dictionary<int, UpdateField> dict, T updateField)
         {
             var isInt = false;
+            var isUInt = false;
             var type = typeof(TK);
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.UInt32:
+                    isUInt = true;
+                    break;
                 case TypeCode.Int32:
                     isInt = true;
                     break;
@@ -221,6 +224,8 @@ namespace WowPacketParser.Store.Objects
                     switch (Type.GetTypeCode(Nullable.GetUnderlyingType(type)))
                     {
                         case TypeCode.UInt32:
+                            isUInt = true;
+                            break;
                         case TypeCode.Int32:
                             isInt = true;
                             break;
@@ -238,7 +243,13 @@ namespace WowPacketParser.Store.Objects
             if (dict.TryGetValue(UpdateFields.GetUpdateField(updateField), out uf))
             {
                 if (isInt)
+                {
+                    return (TK)(object)Convert.ToInt32(uf.UInt32Value);
+                }
+                else if (isUInt)
+                {
                     return (TK)(object)uf.UInt32Value;
+                }
                 return (TK)(object)uf.SingleValue;
             }
 
